@@ -14,6 +14,7 @@
 </head>
 <body>
 <script src="../libs/three.js"></script>
+<script src="../libs/orbitControls.js"></script>
 <div id="container">
     <canvas id="canvas"></canvas>
 </div>
@@ -21,27 +22,142 @@
   (function () {
     'use strict';
 
-    var scene = new THREE.Scene();
-    var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    var renderer = new THREE.WebGLRenderer();
+    var camera, scene, renderer, cameraControls;
+    var clock = new THREE.Clock();
 
-    renderer.setSize(window.innerWidth, window.innerHeight);
+    function init() {
+      renderer = new THREE.WebGLRenderer({antialias: true});
+      renderer.gammaInput = true;
+      renderer.gammaOutput = true;
+      renderer.setClearColor(new THREE.Color(0xAAAAAA), 1.0);
+      renderer.setSize(window.innerWidth, window.innerHeight);
 
+      camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 2000);
+      camera.position.z = 150;
 
-    var geometry = new THREE.BoxGeometry(1, 1, 1);
-    var material = new THREE.MeshBasicMaterial({color: 0x00ff00});
-    var cube = new THREE.Mesh(geometry, material);
+      cameraControls = new THREE.OrbitControls(camera, renderer.domElement);
+      cameraControls.addEventListener('change', render); // remove when using animation loop
+      cameraControls.enableZoom = false;
 
-    scene.add(cube);
-    camera.position.z = 5;
+      fillScene();
+    }
 
-    var render = function () {
-      requestAnimationFrame(render);
-      cube.rotation.x += 0.01;
-      cube.rotation.y += 0.01;
-      renderer.render(scene, camera);
-    };
-    render();
+    function fillScene() {
+      scene = new THREE.Scene();
+
+      var ambientLight = new THREE.AmbientLight(0x383838);
+      var light = new THREE.DirectionalLight(0xffffff, 1.0);
+      light.position.set(100, 200, 300);
+
+      scene.add(ambientLight);
+      scene.add(light);
+      scene.add(camera);
+
+      createDrinkingBird();
+    }
+
+    function createLegs() {
+      var cube;
+      var cubeMaterial = new THREE.MeshLambertMaterial({color: 0xC3773C});
+      var leftLeg = new THREE.Object3D();
+      var rightLeg = new THREE.Object3D();
+      var legs = new THREE.Object3D();
+
+      //base
+      cube = new THREE.Mesh(
+        new THREE.CubeGeometry(180, 1, 180), new THREE.MeshBasicMaterial({color: 0x39832A}));
+      cube.position.x = 0;
+      cube.position.y = -36;
+      cube.position.z = -8;
+      legs.add(cube);
+
+      // left leg bottom
+      cube = new THREE.Mesh(new THREE.CubeGeometry(16, 4, 2), cubeMaterial);
+      cube.position.x = 0;
+      cube.position.y = -34;
+      cube.position.z = 0;
+      leftLeg.add(cube);
+
+      // left leg middle
+      cube = new THREE.Mesh(new THREE.CubeGeometry(5, 34, 2), cubeMaterial);
+      cube.position.x = 5;
+      cube.position.y = -16;
+      cube.position.z = 0;
+      leftLeg.add(cube);
+
+      // right leg bottom
+      cube = new THREE.Mesh(new THREE.CubeGeometry(16, 4, 2), cubeMaterial);
+      cube.position.x = 0;
+      cube.position.y = -34;
+      rightLeg.add(cube);
+
+      // right leg middle
+      cube = new THREE.Mesh(new THREE.CubeGeometry(5, 34, 2), cubeMaterial);
+      cube.position.x = 5;
+      cube.position.y = -16;
+      rightLeg.add(cube);
+
+      rightLeg.position.z = -20;
+
+      legs.add(leftLeg);
+      legs.add(rightLeg);
+      scene.add(legs);
+    }
+
+    function createBody() {
+      var body, backHeight, backRadius, bellyRadius, back, belly;
+
+      body = new THREE.Object3D();
+      backHeight = 50;
+      backRadius = 2;
+      bellyRadius = 8;
+
+      back = new THREE.Mesh(new THREE.CylinderGeometry(backRadius, backRadius, backHeight, 40), new THREE.MeshLambertMaterial({color: 0xFFFFFF}));
+      belly = new THREE.Mesh(new THREE.SphereGeometry(bellyRadius, 40, 40), new THREE.MeshLambertMaterial({color: 0x008349}));
+
+      belly.position.y = -backHeight / 2;
+      body.position.z = -10;
+      body.position.x = 5;
+
+      body.add(back);
+      body.add(belly);
+
+      scene.add(body);
+    }
+
+    function createHead() {
+      var wholeHead, head, hat, headRadius, hatBottom, hatTop, hatBottomRadius, hatTopRadius;
+
+      wholeHead = new THREE.Object3D();
+      hat = new THREE.Object3D();
+      headRadius = 8;
+      hatBottomRadius = 10;
+      hatTopRadius = 6;
+
+      head = new THREE.Mesh(new THREE.SphereGeometry(headRadius, 40, 40), new THREE.MeshLambertMaterial({color: 0xBB9754}));
+
+      hatTop = new THREE.Mesh(new THREE.CylinderGeometry(hatTopRadius, hatTopRadius, 14, 40), new THREE.MeshLambertMaterial({color: 0xFFFFFF}));
+      hatTop.position.y = 7 + headRadius / 2;
+
+      hatBottom = new THREE.Mesh(new THREE.CylinderGeometry(hatBottomRadius, hatBottomRadius, 2, 40), new THREE.MeshLambertMaterial({color: 0x008349}));
+      hatBottom.position.y = 1 + headRadius / 2;
+
+      hat.add(hatTop);
+      hat.add(hatBottom);
+      wholeHead.add(head);
+      wholeHead.add(hat);
+
+      wholeHead.position.y = 25 + headRadius / 2;
+      wholeHead.position.z = -10;
+      wholeHead.position.x = 5;
+      scene.add(wholeHead);
+    }
+
+    function createDrinkingBird() {
+      createLegs();
+      createBody();
+      createHead();
+    }
 
     function addToDOM() {
       var container = document.getElementById('container');
@@ -53,7 +169,27 @@
       container.appendChild(renderer.domElement);
     }
 
-    addToDOM();
+    function animate() {
+      var delta = clock.getDelta();
+
+      window.requestAnimationFrame(animate);
+      cameraControls.update(delta);
+      render();
+    }
+
+    function render() {
+      //createDrinkingBird();
+      renderer.render(scene, camera);
+    }
+
+    try {
+      init();
+      addToDOM();
+      animate();
+    } catch (e) {
+      var errorReport = "Your program encountered an unrecoverable error, can not draw on canvas. Error was:<br/><br/>";
+      $('#container').append(errorReport + e);
+    }
   })();
 </script>
 </body>
