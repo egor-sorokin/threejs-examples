@@ -27,8 +27,6 @@
 
     function init() {
       renderer = new THREE.WebGLRenderer({antialias: true});
-      renderer.gammaInput = true;
-      renderer.gammaOutput = true;
       renderer.setClearColor(new THREE.Color(0xAAAAAA), 1.0);
       renderer.setSize(window.innerWidth, window.innerHeight);
 
@@ -57,42 +55,45 @@
     }
 
     function createLegs() {
-      var cube;
-      var cubeMaterial = new THREE.MeshLambertMaterial({color: 0xC3773C});
-      var leftLeg = new THREE.Object3D();
-      var rightLeg = new THREE.Object3D();
-      var legs = new THREE.Object3D();
+      var cube, leftLeg, rightLeg, legs;
+      var legMiddleMaterial, legBottomMaterial;
+
+      leftLeg = new THREE.Object3D();
+      rightLeg = new THREE.Object3D();
+      legs = new THREE.Object3D();
+      legMiddleMaterial = new THREE.MeshPhongMaterial({color: 0x3A3A3C, specular: 0x808080, shininess: 4});
+      legBottomMaterial = new THREE.MeshPhongMaterial({color: 0x272324, specular: 0x808080, shininess: 10});
 
       //base
       cube = new THREE.Mesh(
-        new THREE.CubeGeometry(180, 1, 180), new THREE.MeshBasicMaterial({color: 0x39832A}));
+        new THREE.CubeGeometry(180, 1, 180), new THREE.MeshBasicMaterial({color: 0x709288}));
       cube.position.x = 0;
       cube.position.y = -36;
       cube.position.z = -8;
       legs.add(cube);
 
       // left leg bottom
-      cube = new THREE.Mesh(new THREE.CubeGeometry(16, 4, 2), cubeMaterial);
+      cube = new THREE.Mesh(new THREE.CubeGeometry(16, 4, 3), legBottomMaterial);
       cube.position.x = 0;
       cube.position.y = -34;
       cube.position.z = 0;
       leftLeg.add(cube);
 
       // left leg middle
-      cube = new THREE.Mesh(new THREE.CubeGeometry(5, 34, 2), cubeMaterial);
+      cube = new THREE.Mesh(new THREE.CubeGeometry(5, 34, 2), legMiddleMaterial);
       cube.position.x = 5;
       cube.position.y = -16;
       cube.position.z = 0;
       leftLeg.add(cube);
 
       // right leg bottom
-      cube = new THREE.Mesh(new THREE.CubeGeometry(16, 4, 2), cubeMaterial);
+      cube = new THREE.Mesh(new THREE.CubeGeometry(16, 4, 3), legBottomMaterial);
       cube.position.x = 0;
       cube.position.y = -34;
       rightLeg.add(cube);
 
       // right leg middle
-      cube = new THREE.Mesh(new THREE.CubeGeometry(5, 34, 2), cubeMaterial);
+      cube = new THREE.Mesh(new THREE.CubeGeometry(5, 34, 2), legMiddleMaterial);
       cube.position.x = 5;
       cube.position.y = -16;
       rightLeg.add(cube);
@@ -105,15 +106,20 @@
     }
 
     function createBody() {
-      var body, backHeight, backRadius, bellyRadius, back, belly;
+      var body, backHeight, backRadius, bellyRadius, back, belly, sphere, cylinder, liquid;
+      var bellyMaterial, backMaterial, liquidMaterial;
 
       body = new THREE.Object3D();
+      liquid = new THREE.Object3D();
       backHeight = 50;
       backRadius = 2;
       bellyRadius = 8;
+      backMaterial = new THREE.MeshPhongMaterial({color: 0x36BEAB, specular:  0x808080, shininess: 20, opacity: 0.3, transparent: true});
+      bellyMaterial = new THREE.MeshPhongMaterial({color: 0x36BEAB, specular:  0x808080, shininess: 20, opacity: 0.3, transparent: true});
+      liquidMaterial = new THREE.MeshPhongMaterial( { color: 0xE5559F, specular:  0x808080, shininess: 100 });
 
-      back = new THREE.Mesh(new THREE.CylinderGeometry(backRadius, backRadius, backHeight, 40), new THREE.MeshLambertMaterial({color: 0xFFFFFF}));
-      belly = new THREE.Mesh(new THREE.SphereGeometry(bellyRadius, 40, 40), new THREE.MeshLambertMaterial({color: 0x008349}));
+      back = new THREE.Mesh(new THREE.CylinderGeometry(backRadius, backRadius, backHeight, 40), backMaterial);
+      belly = new THREE.Mesh(new THREE.SphereGeometry(bellyRadius, 40, 40), bellyMaterial);
 
       belly.position.y = -backHeight / 2;
       body.position.z = -10;
@@ -122,11 +128,39 @@
       body.add(back);
       body.add(belly);
 
+      // liquid in back
+      sphere = new THREE.Mesh(new THREE.SphereGeometry( 7, 32, 16, 0, Math.PI * 2, Math.PI/2, Math.PI ), liquidMaterial);
+      sphere.position.x = 0;
+      sphere.position.y = 0;
+      sphere.position.z = 0;
+      liquid.add(sphere);
+
+      // liquid in body start
+      cylinder = new THREE.Mesh(
+        new THREE.CylinderGeometry( 7, 7, 0, 32 ), liquidMaterial);
+      cylinder.position.x = 0;
+      cylinder.position.y = 0;
+      cylinder.position.z = 0;
+      liquid.add(cylinder);
+
+      cylinder = new THREE.Mesh(new THREE.CylinderGeometry( 1, 1, 30, 32), liquidMaterial );
+      cylinder.position.x = 0;
+      cylinder.position.y = 10;
+      cylinder.position.z = 0;
+      liquid.add(cylinder);
+
+      liquid.position.x = 5;
+      liquid.position.z = -10;
+      liquid.position.y = -25;
+      // liquid in body end
+
       scene.add(body);
+      scene.add(liquid);
     }
 
     function createHead() {
       var wholeHead, head, hat, headRadius, hatBottom, hatTop, hatBottomRadius, hatTopRadius;
+      var hatTopMaterial, hatBottomMaterial;
 
       wholeHead = new THREE.Object3D();
       hat = new THREE.Object3D();
@@ -134,12 +168,15 @@
       hatBottomRadius = 10;
       hatTopRadius = 6;
 
-      head = new THREE.Mesh(new THREE.SphereGeometry(headRadius, 40, 40), new THREE.MeshLambertMaterial({color: 0xBB9754}));
+      hatBottomMaterial = new THREE.MeshPhongMaterial({color: 0x313E93, specular: 0x808080, shininess: 100});
+      hatTopMaterial = new THREE.MeshPhongMaterial({color: 0x313E93, specular: 0x000000, shininess: 100});
 
-      hatTop = new THREE.Mesh(new THREE.CylinderGeometry(hatTopRadius, hatTopRadius, 14, 40), new THREE.MeshLambertMaterial({color: 0xFFFFFF}));
+      head = new THREE.Mesh(new THREE.SphereGeometry(headRadius, 40, 40), new THREE.MeshLambertMaterial({color: 0x36BEAB}));
+
+      hatTop = new THREE.Mesh(new THREE.CylinderGeometry(hatTopRadius, hatTopRadius, 14, 40), hatTopMaterial);
       hatTop.position.y = 7 + headRadius / 2;
 
-      hatBottom = new THREE.Mesh(new THREE.CylinderGeometry(hatBottomRadius, hatBottomRadius, 2, 40), new THREE.MeshLambertMaterial({color: 0x008349}));
+      hatBottom = new THREE.Mesh(new THREE.CylinderGeometry(hatBottomRadius, hatBottomRadius, 2, 40), hatBottomMaterial);
       hatBottom.position.y = 1 + headRadius / 2;
 
       hat.add(hatTop);
