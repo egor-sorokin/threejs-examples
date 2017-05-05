@@ -40,6 +40,7 @@
       fillScene();
     }
 
+
     function fillScene() {
       scene = new THREE.Scene();
 
@@ -54,6 +55,7 @@
       createDrinkingBird();
     }
 
+
     function createLegs() {
       var cube, leftLeg, rightLeg, legs;
       var legMiddleMaterial, legBottomMaterial;
@@ -67,28 +69,23 @@
       //base
       cube = new THREE.Mesh(
         new THREE.CubeGeometry(180, 1, 180), new THREE.MeshBasicMaterial({color: 0x709288}));
-      cube.position.x = 0;
       cube.position.y = -36;
       cube.position.z = -8;
       legs.add(cube);
 
       // left leg bottom
       cube = new THREE.Mesh(new THREE.CubeGeometry(16, 4, 3), legBottomMaterial);
-      cube.position.x = 0;
       cube.position.y = -34;
-      cube.position.z = 0;
       leftLeg.add(cube);
 
       // left leg middle
       cube = new THREE.Mesh(new THREE.CubeGeometry(5, 34, 2), legMiddleMaterial);
       cube.position.x = 5;
       cube.position.y = -16;
-      cube.position.z = 0;
       leftLeg.add(cube);
 
       // right leg bottom
       cube = new THREE.Mesh(new THREE.CubeGeometry(16, 4, 3), legBottomMaterial);
-      cube.position.x = 0;
       cube.position.y = -34;
       rightLeg.add(cube);
 
@@ -105,18 +102,45 @@
       scene.add(legs);
     }
 
+
+    function createTail() {
+      var tail, textureTail;
+
+      textureTail = THREE.ImageUtils.loadTexture('../assets/img/bird-tail.png');
+      tail = new THREE.Mesh(
+        new THREE.PlaneGeometry(20, 20, 1, 1),
+        new THREE.MeshLambertMaterial({map: textureTail, side: THREE.DoubleSide, transparent: true})
+      );
+
+      tail.eulerOrder = 'YZX';
+      tail.scale.y = 2;
+      tail.rotation.x = 40.0 * Math.PI / 180;
+      tail.rotation.y = 90.0 * Math.PI / 180;
+      tail.position.x = 0;
+      tail.position.y = 0;
+
+      return tail;
+    }
+
+
     function createBody() {
-      var body, backHeight, backRadius, bellyRadius, back, belly, sphere, cylinder, liquid;
-      var bellyMaterial, backMaterial, liquidMaterial;
+      var body, backHeight, backRadius, bellyRadius, back, belly, sphere, cylinder, liquid, crossbar;
+      var bellyMaterial, backMaterial, liquidMaterial, crossbarMaterial;
 
       body = new THREE.Object3D();
       liquid = new THREE.Object3D();
       backHeight = 50;
       backRadius = 2;
       bellyRadius = 8;
-      backMaterial = new THREE.MeshPhongMaterial({color: 0x36BEAB, specular:  0x808080, shininess: 20, opacity: 0.3, transparent: true});
-      bellyMaterial = new THREE.MeshPhongMaterial({color: 0x36BEAB, specular:  0x808080, shininess: 20, opacity: 0.3, transparent: true});
-      liquidMaterial = new THREE.MeshPhongMaterial( { color: 0xE5559F, specular:  0x808080, shininess: 100 });
+      backMaterial = new THREE.MeshPhongMaterial({
+        color: 0x36BEAB, specular: 0x808080, shininess: 20, opacity: 0.3, transparent: true
+      });
+      bellyMaterial = new THREE.MeshPhongMaterial({
+        color: 0x36BEAB, specular: 0x808080, shininess: 20, opacity: 0.3, transparent: true
+      });
+      liquidMaterial = new THREE.MeshPhongMaterial({color: 0xE5559F, specular: 0x808080, shininess: 100});
+      crossbarMaterial = new THREE.MeshPhongMaterial({color: 0x808080, specular: 0xFFFFFF, shininess: 400});
+
 
       back = new THREE.Mesh(new THREE.CylinderGeometry(backRadius, backRadius, backHeight, 40), backMaterial);
       belly = new THREE.Mesh(new THREE.SphereGeometry(bellyRadius, 40, 40), bellyMaterial);
@@ -129,49 +153,51 @@
       body.add(belly);
 
       // liquid in back
-      sphere = new THREE.Mesh(new THREE.SphereGeometry( 7, 32, 16, 0, Math.PI * 2, Math.PI/2, Math.PI ), liquidMaterial);
-      sphere.position.x = 0;
-      sphere.position.y = 0;
-      sphere.position.z = 0;
+      sphere = new THREE.Mesh(new THREE.SphereGeometry(7, 32, 16, 0, Math.PI * 2, Math.PI / 2, Math.PI), liquidMaterial);
       liquid.add(sphere);
 
       // liquid in body start
-      cylinder = new THREE.Mesh(
-        new THREE.CylinderGeometry( 7, 7, 0, 32 ), liquidMaterial);
-      cylinder.position.x = 0;
-      cylinder.position.y = 0;
-      cylinder.position.z = 0;
+      cylinder = new THREE.Mesh(new THREE.CylinderGeometry(7, 7, 0, 32), liquidMaterial);
       liquid.add(cylinder);
 
-      cylinder = new THREE.Mesh(new THREE.CylinderGeometry( 1, 1, 30, 32), liquidMaterial );
-      cylinder.position.x = 0;
+      cylinder = new THREE.Mesh(new THREE.CylinderGeometry(1, 1, 30, 32), liquidMaterial);
       cylinder.position.y = 10;
-      cylinder.position.z = 0;
       liquid.add(cylinder);
 
-      liquid.position.x = 5;
-      liquid.position.z = -10;
       liquid.position.y = -25;
+      body.add(liquid);
       // liquid in body end
 
+      crossbar = new THREE.Mesh(new THREE.CylinderGeometry(1, 1, 24, 32), crossbarMaterial);
+      crossbar.position.y = -4;
+      crossbar.rotation.x = 90 * Math.PI / 180;
+      body.add(crossbar);
+
+      var tail = createTail();
+      tail.position.x = 20;
+      tail.position.y = -10;
+      body.add(tail);
+
       scene.add(body);
-      scene.add(liquid);
     }
 
+
     function createHead() {
-      var wholeHead, head, hat, headRadius, hatBottom, hatTop, hatBottomRadius, hatTopRadius;
-      var hatTopMaterial, hatBottomMaterial;
+      var wholeHead, head, hat, headRadius, hatBottom, hatTop, hatBottomRadius, hatTopRadius, sphere, eye, nose;
+      var hatTopMaterial, hatBottomMaterial, headMaterial, eyeMaterial;
 
       wholeHead = new THREE.Object3D();
       hat = new THREE.Object3D();
       headRadius = 8;
       hatBottomRadius = 10;
       hatTopRadius = 6;
-
       hatBottomMaterial = new THREE.MeshPhongMaterial({color: 0x313E93, specular: 0x808080, shininess: 100});
       hatTopMaterial = new THREE.MeshPhongMaterial({color: 0x313E93, specular: 0x000000, shininess: 100});
+      headMaterial = new THREE.MeshLambertMaterial({color: 0x36BEAB});
+      eyeMaterial = new THREE.MeshPhongMaterial({color: 0x000000, specular: 0x303030, shininess: 4});
 
-      head = new THREE.Mesh(new THREE.SphereGeometry(headRadius, 40, 40), new THREE.MeshLambertMaterial({color: 0x36BEAB}));
+
+      head = new THREE.Mesh(new THREE.SphereGeometry(headRadius, 40, 40), headMaterial);
 
       hatTop = new THREE.Mesh(new THREE.CylinderGeometry(hatTopRadius, hatTopRadius, 14, 40), hatTopMaterial);
       hatTop.position.y = 7 + headRadius / 2;
@@ -184,17 +210,45 @@
       wholeHead.add(head);
       wholeHead.add(hat);
 
+      // nose
+      nose = new THREE.Mesh(new THREE.CylinderGeometry(1, 2, 10, 32), headMaterial);
+      nose.position.x = -10;
+      nose.position.y = -2;
+      nose.rotation.z = 90 * Math.PI / 180;
+      wholeHead.add(nose);
+
+      // eyes start
+      sphere = new THREE.Mesh(new THREE.SphereGeometry(1, 32, 16), eyeMaterial);
+      sphere.position.x = -8;
+      sphere.position.y = 1;
+      eye = new THREE.Object3D();
+      eye.rotation.y = 20 * Math.PI / 180;
+      eye.add(sphere);
+      wholeHead.add(eye);
+
+      sphere = new THREE.Mesh(new THREE.SphereGeometry(1, 32, 16), eyeMaterial);
+      sphere.position.x = -8;
+      sphere.position.y = 1;
+      eye = new THREE.Object3D();
+      eye.rotation.y = -20 * Math.PI / 180;
+      eye.add(sphere);
+      wholeHead.add(eye);
+      // eyes end
+
       wholeHead.position.y = 25 + headRadius / 2;
       wholeHead.position.z = -10;
       wholeHead.position.x = 5;
+
       scene.add(wholeHead);
     }
+
 
     function createDrinkingBird() {
       createLegs();
       createBody();
       createHead();
     }
+
 
     function addToDOM() {
       var container = document.getElementById('container');
@@ -206,6 +260,7 @@
       container.appendChild(renderer.domElement);
     }
 
+
     function animate() {
       var delta = clock.getDelta();
 
@@ -214,10 +269,12 @@
       render();
     }
 
+
     function render() {
       //createDrinkingBird();
       renderer.render(scene, camera);
     }
+
 
     try {
       init();
