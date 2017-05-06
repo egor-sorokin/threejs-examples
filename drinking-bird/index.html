@@ -25,6 +25,7 @@
     var camera, scene, renderer, cameraControls;
     var clock = new THREE.Clock();
 
+
     function init() {
       renderer = new THREE.WebGLRenderer({antialias: true});
       renderer.setClearColor(new THREE.Color(0xAAAAAA), 1.0);
@@ -53,6 +54,7 @@
       scene.add(camera);
 
       createDrinkingBird();
+      createGlass();
     }
 
 
@@ -240,6 +242,26 @@
       wholeHead.position.x = 5;
 
       scene.add(wholeHead);
+    }
+
+
+    function createGlass() {
+      var cup, liquid, glass;
+      var cupMaterial, liquidMaterial;
+
+      glass = new THREE.Object3D();
+      cupMaterial = new THREE.MeshPhongMaterial({color: 0x36BEAB, specular: 0x808080, shininess: 20, opacity: 0.3, transparent: true});
+      cup = new THREE.Mesh(new THREE.CylinderGeometry(15, 11, 30, 32), cupMaterial);
+      liquidMaterial = new THREE.MeshPhongMaterial({color: 0xE5559F, specular: 0x808080, shininess: 100});
+      liquid = new THREE.Mesh(new THREE.CylinderGeometry(12, 8, 25, 32), liquidMaterial);
+
+      glass.add(cup);
+      glass.add(liquid);
+      glass.position.x = -35;
+      glass.position.y = -21;
+      glass.position.z = -10;
+
+      scene.add(glass);
     }
 
 
