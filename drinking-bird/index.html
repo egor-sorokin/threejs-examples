@@ -28,7 +28,7 @@
 
     function init() {
       renderer = new THREE.WebGLRenderer({antialias: true});
-      renderer.setClearColor(new THREE.Color(0xAAAAAA), 1.0);
+      renderer.setClearColor(new THREE.Color(0x000000), 1.0);
       renderer.setSize(window.innerWidth, window.innerHeight);
       renderer.shadowMapEnabled = true;
 
@@ -48,6 +48,7 @@
     function fillScene() {
       scene = new THREE.Scene();
       scene.castShadow = true;
+      scene.fog = new THREE.Fog(0x000000, 10, 1000);
 
       var ambientLight = new THREE.AmbientLight(0x222222);
       var light = new THREE.SpotLight(0xFFFFFF, 1);
