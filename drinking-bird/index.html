@@ -24,15 +24,18 @@
 
     var camera, scene, renderer, cameraControls;
     var clock = new THREE.Clock();
-
+    var headlight;
 
     function init() {
       renderer = new THREE.WebGLRenderer({antialias: true});
-      renderer.setClearColor(new THREE.Color(0xAAAAAA), 1.0);
+      renderer.setClearColor(new THREE.Color(0x000000), 1.0);
       renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.shadowMapEnabled = true;
 
       camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 2000);
       camera.position.z = 150;
+      camera.position.y = 10;
+      camera.position.x = -120;
 
       cameraControls = new THREE.OrbitControls(camera, renderer.domElement);
       cameraControls.addEventListener('change', render); // remove when using animation loop
@@ -44,16 +47,31 @@
 
     function fillScene() {
       scene = new THREE.Scene();
+      scene.castShadow = true;
+      scene.fog = new THREE.Fog(0x000000, 10, 1000);
 
-      var ambientLight = new THREE.AmbientLight(0x383838);
-      var light = new THREE.DirectionalLight(0xffffff, 1.0);
-      light.position.set(100, 200, 300);
+      var ambientLight = new THREE.AmbientLight(0x222222);
+      var light = new THREE.SpotLight(0xFFFFFF, 1);
+      light.exponent = 10;
+      light.angle = 12 * Math.PI / 180;
+      light.position.set(-100, 250, 150);
+      light.castShadow = true;
 
+      var lightSphere = new THREE.Mesh(new THREE.SphereGeometry(5, 6, 3), new THREE.MeshBasicMaterial());
+      lightSphere.position.copy(light.position);
+
+      headlight = new THREE.PointLight( 0x606060, 1.0 );
+
+      scene.add(headlight);
       scene.add(ambientLight);
+      scene.add(lightSphere);
       scene.add(light);
       scene.add(camera);
 
-      createDrinkingBird();
+      var bird = new THREE.Object3D();
+      createDrinkingBird(bird);
+      scene.add(bird);
+
       createGlass();
     }
 
@@ -70,7 +88,7 @@
 
       //base
       cube = new THREE.Mesh(
-        new THREE.CubeGeometry(180, 1, 180), new THREE.MeshBasicMaterial({color: 0x709288}));
+        new THREE.CubeGeometry(1280, 1, 1280), new THREE.MeshPhongMaterial({color: 0x709288}));
       cube.position.y = -36;
       cube.position.z = -8;
       legs.add(cube);
@@ -101,7 +119,8 @@
 
       legs.add(leftLeg);
       legs.add(rightLeg);
-      scene.add(legs);
+
+      return legs;
     }
 
 
@@ -175,12 +194,7 @@
       crossbar.rotation.x = 90 * Math.PI / 180;
       body.add(crossbar);
 
-      var tail = createTail();
-      tail.position.x = 20;
-      tail.position.y = -10;
-      body.add(tail);
-
-      scene.add(body);
+      return body;
     }
 
 
@@ -241,7 +255,7 @@
       wholeHead.position.z = -10;
       wholeHead.position.x = 5;
 
-      scene.add(wholeHead);
+      return wholeHead;
     }
 
 
@@ -250,10 +264,14 @@
       var cupMaterial, liquidMaterial;
 
       glass = new THREE.Object3D();
-      cupMaterial = new THREE.MeshPhongMaterial({color: 0x36BEAB, specular: 0x808080, shininess: 20, opacity: 0.3, transparent: true});
+      cupMaterial = new THREE.MeshPhongMaterial({
+        color: 0x36BEAB, specular: 0x808080, shininess: 20, opacity: 0.3, transparent: true
+      });
       cup = new THREE.Mesh(new THREE.CylinderGeometry(15, 11, 30, 32), cupMaterial);
+      cup.castShadow = true;
       liquidMaterial = new THREE.MeshPhongMaterial({color: 0xE5559F, specular: 0x808080, shininess: 100});
       liquid = new THREE.Mesh(new THREE.CylinderGeometry(12, 8, 25, 32), liquidMaterial);
+      liquid.castShadow = true;
 
       glass.add(cup);
       glass.add(liquid);
@@ -265,10 +283,26 @@
     }
 
 
-    function createDrinkingBird() {
-      createLegs();
-      createBody();
-      createHead();
+    function createDrinkingBird(bird) {
+      var legs = createLegs();
+      var body = createBody();
+      var head = createHead();
+
+      bird.add(legs);
+      bird.add(body);
+      bird.add(head);
+
+      bird.traverse(function (object) {
+        if (object instanceof THREE.Mesh) {
+          object.castShadow = true;
+          object.receiveShadow = true;
+        }
+      });
+
+      var tail = createTail();
+      tail.position.x = 20;
+      tail.position.y = -10;
+      body.add(tail);
     }
 
 
@@ -294,6 +328,8 @@
 
     function render() {
       //createDrinkingBird();
+      headlight.position.copy( camera.position );
+
       renderer.render(scene, camera);
     }
 
