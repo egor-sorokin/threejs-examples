@@ -22,8 +22,7 @@
   (function () {
     'use strict';
 
-    var camera, scene, renderer, cameraControls;
-    var clock = new THREE.Clock();
+    var camera, scene, renderer;
     var headlight;
     var bird;
     var tiltDirection = 1;
@@ -36,12 +35,9 @@
 
       camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 2000);
       camera.position.z = 150;
-      camera.position.y = 10;
+      camera.position.y = -5;
       camera.position.x = -120;
-
-      cameraControls = new THREE.OrbitControls(camera, renderer.domElement);
-      cameraControls.addEventListener('change', render); // remove when using animation loop
-      cameraControls.enableZoom = false;
+      camera.lookAt(new THREE.Vector3(0,0,0));
 
       fillScene();
     }
@@ -324,8 +320,6 @@
 
 
     function animate() {
-      var delta = clock.getDelta();
-      cameraControls.update(delta);
       window.requestAnimationFrame(animate);
       render();
     }
