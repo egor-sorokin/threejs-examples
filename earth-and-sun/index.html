@@ -22,7 +22,6 @@
     'use strict';
 
     var scene, renderer, camera;
-    var cube
 
     scene = new THREE.Scene();
 
@@ -43,23 +42,48 @@
 
 
     function fillScene() {
+      var ambientLight;
+
       scene = new THREE.Scene();
+      ambientLight = new THREE.AmbientLight(0x0C0C0C);
+      scene.add(ambientLight);
 
-      var geometry = new THREE.BoxGeometry(5, 5, 5);
-      var material = new THREE.MeshBasicMaterial({color: 0x00ff00});
-      cube = new THREE.Mesh(geometry, material);
-
-      scene.add(cube);
+      var sun = createSun();
+      scene.add(sun);
     }
+
+
+    function createSun() {
+      var sun = new THREE.Object3D();
+      var pointLight, sphereLight, sphereLightMaterial, sphereLightMesh;
+
+      pointLight = new THREE.PointLight(0xFFFBE3, 1.5, 300);
+
+      sphereLight = new THREE.SphereGeometry(5, 32, 32);
+      sphereLightMaterial = new THREE.MeshBasicMaterial({
+        map: THREE.ImageUtils.loadTexture('../assets/img/sun.jpeg')
+      });
+      sphereLightMesh = new THREE.Mesh(sphereLight, sphereLightMaterial);
+      sphereLightMesh.castShadow = false;
+
+      sun.add(pointLight);
+      sun.add(sphereLightMesh);
+
+      sun.position.x = 10;
+      sun.position.y = 0;
+      sun.position.z = 0;
+
+      return sun;
+    }
+
 
     function animate() {
       window.requestAnimationFrame(animate);
       render();
     }
 
+
     function render() {
-      cube.rotation.x += 0.01;
-      cube.rotation.y += 0.01;
       renderer.render(scene, camera);
     }
 
