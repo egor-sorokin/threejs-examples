@@ -50,6 +50,9 @@
 
       var sun = createSun();
       scene.add(sun);
+
+      var stars = createStars(90, 64);
+      scene.add(stars);
     }
 
 
@@ -76,7 +79,17 @@
       return sun;
     }
 
+    function createStars(radius, segments) {
+      return new THREE.Mesh(
+        new THREE.SphereGeometry(radius, segments, segments),
+        new THREE.MeshBasicMaterial({
+          map: THREE.ImageUtils.loadTexture('../assets/img/stars.png'),
+          side: THREE.BackSide
+        })
+      );
+    }
 
+    
     function animate() {
       window.requestAnimationFrame(animate);
       render();
