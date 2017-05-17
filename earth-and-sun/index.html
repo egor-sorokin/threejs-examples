@@ -53,6 +53,9 @@
 
       var stars = createStars(90, 64);
       scene.add(stars);
+
+      var earth = createEarth();
+      scene.add(earth);
     }
 
 
@@ -79,6 +82,7 @@
       return sun;
     }
 
+
     function createStars(radius, segments) {
       return new THREE.Mesh(
         new THREE.SphereGeometry(radius, segments, segments),
@@ -89,7 +93,28 @@
       );
     }
 
-    
+
+    function createEarth() {
+      var planet = new THREE.Object3D();
+      var planetEarth = new THREE.Mesh(
+        new THREE.SphereGeometry(5, 32, 32),
+        new THREE.MeshPhongMaterial({
+          map: THREE.ImageUtils.loadTexture('../assets/img/earthmap.jpeg'),
+          bumpMap: THREE.ImageUtils.loadTexture('../assets/img/earthbump.jpeg'),
+          bumpScale: 0.05,
+          specularMap: THREE.ImageUtils.loadTexture('../assets/img/earthspec.jpeg'),
+          specular: new THREE.Color('black')
+        })
+      );
+
+      planetEarth.rotation.x = 160 * Math.PI / 180;
+      planet.rotation.z = 180 * Math.PI / 180;
+
+      planet.add(planetEarth);
+      return planet;
+    }
+
+
     function animate() {
       window.requestAnimationFrame(animate);
       render();
