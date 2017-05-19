@@ -82,7 +82,6 @@
       return sun;
     }
 
-
     function createStars(radius, segments) {
       return new THREE.Mesh(
         new THREE.SphereGeometry(radius, segments, segments),
@@ -107,11 +106,28 @@
         })
       );
 
+      var clouds = createClouds(5, 92);
+
       planetEarth.rotation.x = 160 * Math.PI / 180;
       planet.rotation.z = 180 * Math.PI / 180;
 
       planet.add(planetEarth);
+      planet.add(clouds);
+
       return planet;
+    }
+
+
+    function createClouds(radius, segments) {
+      var map = THREE.ImageUtils.loadTexture('../assets/img/clouds.png');
+      return new THREE.Mesh(
+        new THREE.SphereGeometry(radius + 0.05, segments, segments),
+        new THREE.MeshPhongMaterial({
+          map: map,
+          transparent: true,
+          opacity: 1.0
+        })
+      );
     }
 
 
