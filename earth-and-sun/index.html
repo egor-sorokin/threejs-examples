@@ -82,6 +82,7 @@
       return sun;
     }
 
+
     function createStars(radius, segments) {
       return new THREE.Mesh(
         new THREE.SphereGeometry(radius, segments, segments),
@@ -108,11 +109,17 @@
 
       var clouds = createClouds(5, 92);
 
+      var moon = createMoon();
+
+      moon.position.x = -5;
+      moon.position.z = 5;
+
       planetEarth.rotation.x = 160 * Math.PI / 180;
       planet.rotation.z = 180 * Math.PI / 180;
 
       planet.add(planetEarth);
       planet.add(clouds);
+      planet.add(moon);
 
       return planet;
     }
@@ -126,6 +133,16 @@
           map: map,
           transparent: true,
           opacity: 1.0
+        })
+      );
+    }
+
+
+    function createMoon() {
+      return new THREE.Mesh(
+        new THREE.SphereGeometry(1, 32, 32),
+        new THREE.MeshPhongMaterial({
+          map: THREE.ImageUtils.loadTexture('../assets/img/moon.jpeg')
         })
       );
     }
