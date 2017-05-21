@@ -22,8 +22,6 @@
     'use strict';
 
     var scene, renderer, camera;
-    var sun, planet, planetEarth, clouds, moon;
-    var animationStep = 0;
 
     scene = new THREE.Scene();
 
@@ -62,8 +60,8 @@
 
 
     function createSun() {
+      var sun = new THREE.Object3D();
       var pointLight, sphereLight, sphereLightMaterial, sphereLightMesh;
-      sun = new THREE.Object3D();
 
       pointLight = new THREE.PointLight(0xFFFBE3, 1.5, 300);
 
@@ -97,8 +95,8 @@
 
 
     function createEarth() {
-      planet = new THREE.Object3D();
-      planetEarth = new THREE.Mesh(
+      var planet = new THREE.Object3D();
+      var planetEarth = new THREE.Mesh(
         new THREE.SphereGeometry(5, 32, 32),
         new THREE.MeshPhongMaterial({
           map: THREE.ImageUtils.loadTexture('../assets/img/earthmap.jpeg'),
@@ -109,8 +107,9 @@
         })
       );
 
-      clouds = createClouds(5, 92);
-      moon = createMoon();
+      var clouds = createClouds(5, 92);
+
+      var moon = createMoon();
 
       moon.position.x = -5;
       moon.position.z = 5;
@@ -156,18 +155,6 @@
 
 
     function render() {
-      animationStep += 0.005;
-
-      sun.rotation.y = animationStep / 15;
-      planetEarth.rotation.y = animationStep;
-      planet.position.x = 20 + (30 * Math.cos(animationStep / 2));
-      planet.position.z = -10 + (30 * Math.sin(animationStep / 2));
-      clouds.rotation.y = -animationStep;
-
-      moon.position.x = 7 * Math.cos(animationStep * 2);
-      moon.position.z = 7 * Math.sin(animationStep * 2);
-      moon.rotation.y = 2 * animationStep;
-
       renderer.render(scene, camera);
     }
 
