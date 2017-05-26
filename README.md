@@ -4,9 +4,13 @@ In this repository you can find some examples which were done using 3D library [
 ## Drinking Bird
 Desription of what a drinking bird exactly is can be found [here]. This example is a result of ["Interactive 3D Graphics"] free online course on [Udacity.com]. 
 
-Live demo: https://drinking-bird-threejs-egor.herokuapp.com/
+Live demo: http://threejs-examples-egor.herokuapp.com/drinking-bird/
 
 
+## Earth and Sun 
+The small solar system which include only Earth, Moon and Sun. All object's movements and physical phenomena are unreal.
+
+Live demo: http://threejs-examples-egor.herokuapp.com/earth-and-sun/
 
 
 
