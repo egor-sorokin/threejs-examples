@@ -21,27 +21,156 @@
   (function () {
     'use strict';
 
-    var scene = new THREE.Scene();
-    var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    var renderer = new THREE.WebGLRenderer();
+    var scene, renderer, camera;
+    var sun, planet, planetEarth, clouds, moon;
+    var animationStep = 0;
 
-    renderer.setSize(window.innerWidth, window.innerHeight);
+    scene = new THREE.Scene();
+
+    function init() {
+      renderer = new THREE.WebGLRenderer();
+      renderer.setClearColor(0xffffff, 1.0);
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.shadowMapEnabled = true;
+
+      camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+      camera.position.x = -20;
+      camera.position.y = 0;
+      camera.position.z = 40;
+      camera.lookAt(new THREE.Vector3(10, 0, 0));
+
+      fillScene();
+    }
 
 
-    var geometry = new THREE.BoxGeometry(1, 1, 1);
-    var material = new THREE.MeshBasicMaterial({color: 0x00ff00});
-    var cube = new THREE.Mesh(geometry, material);
+    function fillScene() {
+      var ambientLight;
 
-    scene.add(cube);
-    camera.position.z = 5;
+      scene = new THREE.Scene();
+      ambientLight = new THREE.AmbientLight(0x0C0C0C);
+      scene.add(ambientLight);
 
-    var render = function () {
-      requestAnimationFrame(render);
-      cube.rotation.x += 0.01;
-      cube.rotation.y += 0.01;
+      var sun = createSun();
+      scene.add(sun);
+
+      var stars = createStars(90, 64);
+      scene.add(stars);
+
+      var earth = createEarth();
+      scene.add(earth);
+    }
+
+
+    function createSun() {
+      var pointLight, sphereLight, sphereLightMaterial, sphereLightMesh;
+      sun = new THREE.Object3D();
+
+      pointLight = new THREE.PointLight(0xFFFBE3, 1.5, 300);
+
+      sphereLight = new THREE.SphereGeometry(5, 32, 32);
+      sphereLightMaterial = new THREE.MeshBasicMaterial({
+        map: THREE.ImageUtils.loadTexture('../assets/img/sun.jpeg')
+      });
+      sphereLightMesh = new THREE.Mesh(sphereLight, sphereLightMaterial);
+      sphereLightMesh.castShadow = false;
+
+      sun.add(pointLight);
+      sun.add(sphereLightMesh);
+
+      sun.position.x = 10;
+      sun.position.y = 0;
+      sun.position.z = 0;
+
+      return sun;
+    }
+
+
+    function createStars(radius, segments) {
+      return new THREE.Mesh(
+        new THREE.SphereGeometry(radius, segments, segments),
+        new THREE.MeshBasicMaterial({
+          map: THREE.ImageUtils.loadTexture('../assets/img/stars.png'),
+          side: THREE.BackSide
+        })
+      );
+    }
+
+
+    function createEarth() {
+      planet = new THREE.Object3D();
+      planetEarth = new THREE.Mesh(
+        new THREE.SphereGeometry(5, 32, 32),
+        new THREE.MeshPhongMaterial({
+          map: THREE.ImageUtils.loadTexture('../assets/img/earthmap.jpeg'),
+          bumpMap: THREE.ImageUtils.loadTexture('../assets/img/earthbump.jpeg'),
+          bumpScale: 0.05,
+          specularMap: THREE.ImageUtils.loadTexture('../assets/img/earthspec.jpeg'),
+          specular: new THREE.Color('black')
+        })
+      );
+
+      clouds = createClouds(5, 92);
+      moon = createMoon();
+
+      moon.position.x = -5;
+      moon.position.z = 5;
+
+      planetEarth.rotation.x = 160 * Math.PI / 180;
+      planet.rotation.z = 180 * Math.PI / 180;
+
+      planet.add(planetEarth);
+      planet.add(clouds);
+      planet.add(moon);
+
+      return planet;
+    }
+
+
+    function createClouds(radius, segments) {
+      var map = THREE.ImageUtils.loadTexture('../assets/img/clouds.png');
+      return new THREE.Mesh(
+        new THREE.SphereGeometry(radius + 0.05, segments, segments),
+        new THREE.MeshPhongMaterial({
+          map: map,
+          transparent: true,
+          opacity: 1.0
+        })
+      );
+    }
+
+
+    function createMoon() {
+      return new THREE.Mesh(
+        new THREE.SphereGeometry(1, 32, 32),
+        new THREE.MeshPhongMaterial({
+          map: THREE.ImageUtils.loadTexture('../assets/img/moon.jpeg')
+        })
+      );
+    }
+
+
+    function animate() {
+      window.requestAnimationFrame(animate);
+      render();
+    }
+
+
+    function render() {
+      animationStep += 0.005;
+
+      sun.rotation.y = animationStep / 15;
+      planetEarth.rotation.y = animationStep;
+      planet.position.x = 20 + (30 * Math.cos(animationStep / 2));
+      planet.position.z = -10 + (30 * Math.sin(animationStep / 2));
+      clouds.rotation.y = -animationStep;
+
+      moon.position.x = 7 * Math.cos(animationStep * 2);
+      moon.position.z = 7 * Math.sin(animationStep * 2);
+      moon.rotation.y = 2 * animationStep;
+
       renderer.render(scene, camera);
-    };
-    render();
+    }
+
 
     function addToDOM() {
       var container = document.getElementById('container');
@@ -53,7 +182,14 @@
       container.appendChild(renderer.domElement);
     }
 
-    addToDOM();
+    try {
+      init();
+      addToDOM();
+      animate();
+    } catch (e) {
+      var errorReport = "Your program encountered an unrecoverable error, can not draw on canvas. Error was:<br/><br/>";
+      $('#container').append(errorReport + e);
+    }
   })();
 </script>
 </body>
