@@ -35,6 +35,9 @@
   var windowHalfX = window.innerWidth / 2;
   var windowHalfY = window.innerHeight / 2;
 
+  var raycaster = new THREE.Raycaster();
+  var mouse = new THREE.Vector2();
+  var intersected;
 
   scene = new THREE.Scene();
 
@@ -57,6 +60,8 @@
     fillScene();
 
     window.addEventListener( 'resize', onWindowResize, false );
+
+    renderer.domElement.addEventListener('mousemove', onDocumentMouseMove, false);
   }
 
 
@@ -123,6 +128,64 @@
         uv.x = ( uv.x + offsetx ) * unitx;
         uv.y = ( uv.y + offsety ) * unity;
       }
+    }
+  }
+
+
+  function onWindowResize() {
+    windowHalfX = window.innerWidth / 2;
+    windowHalfY = window.innerHeight / 2;
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize( window.innerWidth, window.innerHeight );
+  }
+
+
+  function animate() {
+    var delta = clock.getDelta();
+    cameraControls.update(delta);
+
+
+    window.requestAnimationFrame(animate);
+    render();
+  }
+
+
+  function render() {
+    for (var i = 0; i < cubeCount; i++) {
+      mesh = meshes[i];
+
+      mesh.rotation.x += 0.005;
+      mesh.rotation.y += 0.005;
+    }
+
+    renderer.render(scene, camera);
+  }
+
+
+  function onDocumentMouseMove(event) {
+    event.preventDefault();
+    mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+    mouse.y = -( event.clientY / window.innerHeight ) * 2 + 1;
+
+
+    raycaster.setFromCamera(mouse, camera);
+    var intersections;
+
+    intersections = raycaster.intersectObjects(meshes);
+
+    if (intersections.length > 0) {
+      if (intersected != intersections[0].object) {
+        intersected = intersections[0].object;
+        intersected.material.color.setHex(Math.random() * 0xffffff);
+
+      }
+
+      document.body.style.cursor = 'pointer';
+    } else if (intersected) {
+
+      intersected = null;
+      document.body.style.cursor = 'auto';
     }
   }
 
