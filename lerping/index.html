@@ -68,10 +68,10 @@
   function fillScene() {
     scene = new THREE.Scene();
 
-    createParticles();
+    createCubes();
   }
 
-  function createParticles() {
+  function createCubes() {
     var i, j, ux, uy, ox, oy,
       geometry,
       xsize, ysize;
@@ -82,15 +82,15 @@
     xsize = 240 / xgrid;
     ysize = 120 / ygrid;
 
-    var parameters = {color: 0xffffff, map: THREE.ImageUtils.loadTexture('../assets/img/sun.jpeg')};
+    var parameters = {color: 0xffffff};
     cubeCount = 0;
 
-    for (i = 0; i < xgrid; i++) {
-      for (j = 0; j < ygrid; j++) {
+    for (i = 0; i < xgrid; i += 2) {
+      for (j = 0; j < ygrid; j += 2) {
 
         ox = i;
         oy = j;
-        geometry = new THREE.PlaneGeometry(xsize, ysize);
+        geometry = new THREE.CubeGeometry(xsize, ysize, xsize);
         changeUVs(geometry, ux, uy, ox, oy);
 
         materials[cubeCount] = new THREE.MeshBasicMaterial(parameters);
@@ -167,7 +167,6 @@
     event.preventDefault();
     mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
     mouse.y = -( event.clientY / window.innerHeight ) * 2 + 1;
-
 
     raycaster.setFromCamera(mouse, camera);
     var intersections;
