@@ -13,6 +13,10 @@ The small solar system which include only Earth, Moon and Sun. All object's move
 Live demo: http://threejs-examples-egor.herokuapp.com/earth-and-sun/
 
 
+## Geometric shapes
+
+Live demo: in progress
+
 
 [Three.js]: <https://threejs.org/>
 [here]: <https://en.wikipedia.org/wiki/Drinking_bird>
