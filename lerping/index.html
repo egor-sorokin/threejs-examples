@@ -33,7 +33,7 @@
     ygrid = 6;
 
   var nextShape;
-  var shapes = {random: [], cube: []};
+  var shapes = {random: [], cube: [], helix: [], conic: [], cylinder: []};
 
   var windowHalfX = window.innerWidth / 2;
   var windowHalfY = window.innerHeight / 2;
@@ -145,7 +145,9 @@
 
 
   function initShapesPositions() {
-    var position;
+    var object, position;
+    var theta, axisY;
+    var cylindrical;
     var i;
 
     //random
@@ -171,6 +173,58 @@
         }
       }
     }
+
+
+    //helix
+    cylindrical = new THREE.Cylindrical();
+
+    for (i = 0; i < cubesCount; i++) {
+      theta = i * 0.475 + Math.PI;
+      axisY = -( i * 4 ) + 30;
+
+      object = new THREE.Object3D();
+      cylindrical.set(70, theta, axisY);
+      object.position.setFromCylindrical(cylindrical);
+
+      position = new THREE.Vector3(object.position.x, object.position.y, object.position.z);
+      position.floor();
+
+      shapes.helix.push(position);
+    }
+
+    //conic
+    cylindrical = new THREE.Cylindrical();
+
+    for (i = 0; i < cubesCount; i++) {
+      theta = i * 0.475 + Math.PI;
+      axisY = -( i * 5 ) + 30;
+
+      object = new THREE.Object3D();
+      cylindrical.set(30 + 5 * i, theta, axisY);
+      object.position.setFromCylindrical(cylindrical);
+
+      position = new THREE.Vector3(object.position.x, object.position.y, object.position.z);
+      position.floor();
+
+      shapes.conic.push(position);
+    }
+
+    //cylinder
+    cylindrical = new THREE.Cylindrical();
+
+    for (i = 0; i < cubesCount; i++) {
+      theta = i * 0.698 + Math.PI;
+      axisY = -( Math.floor(i / 9) % 9 ) * 40 + 20;
+
+      object = new THREE.Object3D();
+      cylindrical.set(120, theta, axisY);
+      object.position.setFromCylindrical(cylindrical);
+
+      position = new THREE.Vector3(object.position.x, object.position.y, object.position.z);
+      position.floor();
+
+      shapes.cylinder.push(position);
+    }
   }
 
 
@@ -185,12 +239,22 @@
 
       case 'cube':
         positions = shapes.cube;
-        nextShape = 'random';
+        nextShape = 'helix';
         break;
 
-      default:
-        positions = shapes.random;
-        nextShape = 'cube';
+      case 'helix':
+        positions = shapes.helix;
+        nextShape = 'conic';
+        break;
+
+      case 'conic':
+        positions = shapes.conic;
+        nextShape = 'cylinder';
+        break;
+
+      case 'cylinder':
+        positions = shapes.cylinder;
+        nextShape = 'random';
         break;
     }
 
