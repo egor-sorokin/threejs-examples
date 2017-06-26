@@ -22,7 +22,7 @@
 
   'use strict';
 
-  var camera, scene, renderer, cameraControls;
+  var camera, scene, renderer, cameraControls, light;
   var clock = new THREE.Clock();
   var mesh, material;
 
@@ -71,14 +71,23 @@
   function fillScene() {
     scene = new THREE.Scene();
 
+    addLight();
     createCubes();
-
     initShapesPositions();
     nextShape = 'cube';
 
     setNewShapePosition();
 
     endMeshesTransition = true;
+  }
+
+  function addLight () {
+    light = new THREE.AmbientLight(0x606060);
+    scene.add(light);
+
+    light = new THREE.PointLight(0xffffff, 1, 700);
+    light.position.set(0, 20, 120);
+    scene.add(light);
   }
 
 
@@ -104,8 +113,7 @@
         geometry = new THREE.CubeGeometry(xsize, ysize, xsize);
         changeUVs(geometry, ux, uy, ox, oy);
 
-        materials[cubesCount] = new THREE.MeshBasicMaterial(parameters);
-        materials[cubesCount].side = THREE.DoubleSide;
+        materials[cubesCount] = new THREE.MeshPhongMaterial(parameters);
 
         material = materials[cubesCount];
 
@@ -119,7 +127,6 @@
 
         mesh.dx = 0.001 * ( 0.5 - Math.random() );
         mesh.dy = 0.001 * ( 0.5 - Math.random() );
-
         mesh.position.floor();
         meshes[cubesCount] = mesh;
         cubesCount += 1;
