@@ -33,7 +33,7 @@
     ygrid = 6;
 
   var nextShape;
-  var shapes = {random: [], cube: [], helix: [], conic: [], cylinder: []};
+  var shapes = {random: [], cube: [], helix: [], conic: [], cylinder: [], sphere: []};
 
   var windowHalfX = window.innerWidth / 2;
   var windowHalfY = window.innerHeight / 2;
@@ -146,8 +146,8 @@
 
   function initShapesPositions() {
     var object, position;
-    var theta, axisY;
-    var cylindrical;
+    var phi, theta, axisY;
+    var cylindrical, spherical;
     var i;
 
     //random
@@ -166,14 +166,13 @@
     for (var x = 0; x <= 1.0; x += stepSize) {
       for (var y = 0; y <= 1.0; y += stepSize) {
         for (var z = 0; z <= 1.0; z += stepSize) {
-          position = new THREE.Vector3(x * 60 - 50, y * 60 - 50, z * 60 - 50);
+          position = new THREE.Vector3(x * 60 - 40, y * 60 - 50, z * 60 - 50);
           position.floor();
 
           shapes.cube.push(position);
         }
       }
     }
-
 
     //helix
     cylindrical = new THREE.Cylindrical();
@@ -225,6 +224,23 @@
 
       shapes.cylinder.push(position);
     }
+
+    //sphere
+    spherical = new THREE.Spherical();
+
+    for (i = 0; i < cubesCount; i++) {
+      phi = Math.acos(-1 + ( 2 * i ) / cubesCount);
+      theta = Math.sqrt(cubesCount * Math.PI) * phi;
+
+      object = new THREE.Object3D();
+      spherical.set(80, phi, theta);
+      object.position.setFromSpherical(spherical);
+
+      position = new THREE.Vector3(object.position.x, object.position.y, object.position.z);
+      position.floor();
+
+      shapes.sphere.push(position);
+    }
   }
 
 
@@ -239,6 +255,11 @@
 
       case 'cube':
         positions = shapes.cube;
+        nextShape = 'sphere';
+        break;
+
+      case 'sphere':
+        positions = shapes.sphere;
         nextShape = 'helix';
         break;
 
