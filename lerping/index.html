@@ -81,6 +81,7 @@
     endMeshesTransition = true;
   }
 
+
   function addLight () {
     light = new THREE.AmbientLight(0x606060);
     scene.add(light);
@@ -128,6 +129,7 @@
         mesh.dx = 0.001 * ( 0.5 - Math.random() );
         mesh.dy = 0.001 * ( 0.5 - Math.random() );
         mesh.position.floor();
+
         meshes[cubesCount] = mesh;
         cubesCount += 1;
       }
