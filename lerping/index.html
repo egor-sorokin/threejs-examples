@@ -42,7 +42,6 @@
   var mouse = new THREE.Vector2();
   var intersected;
 
-
   scene = new THREE.Scene();
 
   function init() {
@@ -53,8 +52,8 @@
     renderer.shadowMap.enabled = true;
 
     camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.x = -10;
-    camera.position.y = 0;
+    camera.position.x = 250;
+    camera.position.y = 230;
     camera.position.z = 500;
 
     cameraControls = new THREE.OrbitControls(camera, renderer.domElement);
@@ -82,7 +81,7 @@
   }
 
 
-  function addLight () {
+  function addLight() {
     light = new THREE.AmbientLight(0x606060);
     scene.add(light);
 
@@ -123,12 +122,12 @@
         mesh.position.x = ( i - xgrid / 2 ) * xsize;
         mesh.position.y = ( j - ygrid / 2 ) * ysize;
         mesh.position.z = 0;
+        mesh.position.floor();
         mesh.scale.x = mesh.scale.y = mesh.scale.z = 1;
         scene.add(mesh);
 
         mesh.dx = 0.001 * ( 0.5 - Math.random() );
         mesh.dy = 0.001 * ( 0.5 - Math.random() );
-        mesh.position.floor();
 
         meshes[cubesCount] = mesh;
         cubesCount += 1;
@@ -175,7 +174,7 @@
     for (var x = 0; x <= 1.0; x += stepSize) {
       for (var y = 0; y <= 1.0; y += stepSize) {
         for (var z = 0; z <= 1.0; z += stepSize) {
-          position = new THREE.Vector3(x * 60 - 40, y * 60 - 50, z * 60 - 50);
+          position = new THREE.Vector3(x * 60 - 50, y * 60 - 50, z * 60 - 50);
           position.floor();
 
           shapes.cube.push(position);
@@ -312,16 +311,21 @@
   }
 
 
-  var timer, alpha, currentX, currentY, currentZ, delta, endMeshesTransition;
+  var renderTime, deltaTime, alpha, endMeshesTransition;
+  var currentX, currentY, currentZ;
+  var globalTime = Date.now() * 0.04;
 
-  timer = 0;
-  alpha = 0;
+  deltaTime = renderTime = alpha = 0;
 
   function render() {
-    delta = clock.getDelta();
+    renderTime = Date.now() * 0.04;
 
-    if (timer % 500 === 0 && timer !== 0) {
+    deltaTime = Math.abs(Math.floor(globalTime - renderTime));
+
+    if (deltaTime % 500 === 0 && deltaTime !== 0) {
       alpha = 0;
+      globalTime = Date.now() * 0.04;
+
       endMeshesTransition = false;
     }
 
@@ -336,7 +340,7 @@
         currentZ = Math.abs(mesh.newPosition.z - mesh.position.z);
 
         if (currentX >= 1 || currentY >= 1 || currentZ >= 1) {
-          alpha += delta / 20;
+          alpha += deltaTime * 0.0000001;
           mesh.position.lerp(mesh.newPosition, alpha);
 
           endMeshesTransition = false;
@@ -348,7 +352,6 @@
       }
     }
 
-    timer++;
     renderer.render(scene, camera);
   }
 
