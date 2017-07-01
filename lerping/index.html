@@ -54,8 +54,8 @@
   var cubesCount,
     meshes = [],
     materials = [],
-    xgrid = 18,
-    ygrid = 6;
+    xgrid = 32,
+    ygrid = 8;
 
   var nextShape;
   var shapes = {random: [], cube: [], helix: [], conic: [], cylinder: [], sphere: []};
@@ -194,11 +194,11 @@
     }
 
     //cube
-    var stepSize = 0.5;
+    var stepSize = 0.33;
 
-    for (var x = 0; x <= 1.0; x += stepSize) {
-      for (var y = 0; y <= 1.0; y += stepSize) {
-        for (var z = 0; z <= 1.0; z += stepSize) {
+    for (var x = 0; x <= 0.99; x += stepSize) {
+      for (var y = 0; y <= 0.99; y += stepSize) {
+        for (var z = 0; z <= 0.99; z += stepSize) {
           position = new THREE.Vector3(x * 60 - 50, y * 60 - 50, z * 60 - 50);
           position.floor();
 
@@ -211,8 +211,8 @@
     cylindrical = new THREE.Cylindrical();
 
     for (i = 0; i < cubesCount; i++) {
-      theta = i * 0.475 + Math.PI;
-      axisY = -( i * 4 ) + 30;
+      theta = i * 0.275 + Math.PI;
+      axisY = -( i * 2 ) + 30;
 
       object = new THREE.Object3D();
       cylindrical.set(70, theta, axisY);
@@ -228,11 +228,11 @@
     cylindrical = new THREE.Cylindrical();
 
     for (i = 0; i < cubesCount; i++) {
-      theta = i * 0.475 + Math.PI;
-      axisY = -( i * 5 ) + 30;
+      theta = i * 0.375 + Math.PI;
+      axisY = -( i * 2.5 ) + 70;
 
       object = new THREE.Object3D();
-      cylindrical.set(30 + 5 * i, theta, axisY);
+      cylindrical.set(30 + 2 * i, theta, axisY);
       object.position.setFromCylindrical(cylindrical);
 
       position = new THREE.Vector3(object.position.x, object.position.y, object.position.z);
@@ -245,11 +245,11 @@
     cylindrical = new THREE.Cylindrical();
 
     for (i = 0; i < cubesCount; i++) {
-      theta = i * 0.698 + Math.PI;
-      axisY = -( Math.floor(i / 9) % 9 ) * 40 + 20;
+      theta = i * 0.392 + Math.PI;
+      axisY = -( Math.floor(i / 16) % 16 ) * 55 + 60;
 
       object = new THREE.Object3D();
-      cylindrical.set(120, theta, axisY);
+      cylindrical.set(45, theta, axisY);
       object.position.setFromCylindrical(cylindrical);
 
       position = new THREE.Vector3(object.position.x, object.position.y, object.position.z);
@@ -266,7 +266,8 @@
       theta = Math.sqrt(cubesCount * Math.PI) * phi;
 
       object = new THREE.Object3D();
-      spherical.set(80, phi, theta);
+
+      spherical.set(70, phi, theta);
       object.position.setFromSpherical(spherical);
 
       position = new THREE.Vector3(object.position.x, object.position.y, object.position.z);
