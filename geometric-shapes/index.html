@@ -1,12 +1,12 @@
 <html>
 <head>
-    <title>Lerping</title>
+    <title>Geometric shapes</title>
     <style>
         body {
             overflow: hidden;
 
-            margin: 0;
             height: 100%;
+            margin: 0;
 
             font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
         }
@@ -22,6 +22,7 @@
             left: 50%;
 
             list-style: number;
+
             transform: translateX(-50%);
         }
 
@@ -106,7 +107,7 @@
   }
 
 
-  function addLight () {
+  function addLight() {
     light = new THREE.AmbientLight(0x606060);
     scene.add(light);
 
@@ -117,12 +118,9 @@
 
 
   function createCubes() {
-    var i, j, ux, uy, ox, oy,
+    var i, j,
       geometry,
       xsize, ysize;
-
-    ux = 1 / xgrid;
-    uy = 1 / ygrid;
 
     xsize = 240 / xgrid;
     ysize = 108 / ygrid;
@@ -132,11 +130,7 @@
 
     for (i = 0; i < xgrid; i += 2) {
       for (j = 0; j < ygrid; j += 2) {
-
-        ox = i;
-        oy = j;
         geometry = new THREE.CubeGeometry(xsize, ysize, xsize);
-        changeUVs(geometry, ux, uy, ox, oy);
 
         materials[cubesCount] = new THREE.MeshPhongMaterial(parameters);
 
@@ -151,27 +145,8 @@
         mesh.scale.x = mesh.scale.y = mesh.scale.z = 1;
         scene.add(mesh);
 
-        mesh.dx = 0.001 * ( 0.5 - Math.random() );
-        mesh.dy = 0.001 * ( 0.5 - Math.random() );
-
         meshes[cubesCount] = mesh;
         cubesCount += 1;
-      }
-    }
-  }
-
-
-  function changeUVs(geometry, unitX, unitY, offsetX, offsetY) {
-    var faceVertexUvs = geometry.faceVertexUvs[0];
-
-    for (var i = 0; i < faceVertexUvs.length; i++) {
-      var uvs = faceVertexUvs[i];
-
-      for (var j = 0; j < uvs.length; j++) {
-        var uv = uvs[j];
-
-        uv.x = ( uv.x + offsetX ) * unitX;
-        uv.y = ( uv.y + offsetY ) * unitY;
       }
     }
   }
@@ -196,10 +171,10 @@
     //cube
     var stepSize = 0.33;
 
-    for (var x = 0; x <= 0.99; x += stepSize) {
-      for (var y = 0; y <= 0.99; y += stepSize) {
-        for (var z = 0; z <= 0.99; z += stepSize) {
-          position = new THREE.Vector3(x * 60 - 50, y * 60 - 50, z * 60 - 50);
+    for (var i = 0; i <= 0.99; i += stepSize) {
+      for (var j = 0; j <= 0.99; j += stepSize) {
+        for (var k = 0; k <= 0.99; k += stepSize) {
+          position = new THREE.Vector3(i * 60 - 50, j * 60 - 50, k * 60 - 50);
           position.floor();
 
           shapes.cube.push(position);
@@ -345,7 +320,6 @@
 
   function render() {
     renderTime = Date.now() * 0.04;
-
     deltaTime = Math.abs(Math.floor(globalTime - renderTime));
 
     if (deltaTime % 300 === 0 && deltaTime !== 0) {
