@@ -3,17 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <title>Geometric shapes</title>
-    <link rel="stylesheet" href="../assets/css/reset.css" />
-    <link rel="stylesheet" href="../assets/css/default.css" />
-    <link rel="stylesheet" href="../assets/css/button.css" />
+    <link rel="stylesheet" href="../assets/css/reset.css"/>
+    <link rel="stylesheet" href="../assets/css/default.css"/>
+    <link rel="stylesheet" href="../assets/css/button.css"/>
 
     <style>
         .list {
+            list-style: number;
+
             position: absolute;
             top: 30px;
             left: 50%;
-
-            list-style: number;
 
             transform: translateX(-50%);
         }
@@ -29,16 +29,15 @@
 <body>
 <script src="../libs/three.js"></script>
 <script src="../libs/orbitControls.js"></script>
-<div id="container">
+<main id="container">
     <ul class="list">
         <li class="list__item">Use your touchpad/mouse to rotate the scene and to color polygons</li>
         <li class="list__item">Watch the animation of geometric shape changing</li>
     </ul>
     <a href="/" class="link link--back">Check others</a>
     <canvas id="canvas"></canvas>
-</div>
+</main>
 <script>
-
   'use strict';
 
   var camera, scene, renderer, cameraControls, light;
