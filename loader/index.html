@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Loader</title>
+    <link rel="stylesheet" href="../assets/css/reset.css"/>
+    <link rel="stylesheet" href="../assets/css/default.css"/>
+    <link rel="stylesheet" href="../assets/css/button.css"/>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/1.16.1/TweenMax.min.js"></script>
+</head>
+<body>
+<script src="../libs/three.js"></script>
+<main id="container">
+    <canvas id="canvas"></canvas>
+    <a href="/" class="button button--rounded">
+        <span class="button__text">Check others</span>
+    </a>
+    <span id="error" class="error"></span>
+</main>
+<script>
+  'use strict';
+
+  function ThreejsScene() {
+    this.shapeX = 10;
+    this.shapeY = 10;
+    this.shapeZ = 10;
+    this.shapeColor = 0x00ff00;
+  }
+
+  ThreejsScene.prototype.init = function () {
+    this.scene = new THREE.Scene();
+    this.initCamera();
+    this.initLight();
+    this.initRenderer();
+    this.setEventListeners();
+
+    this.initShapes();
+
+    this.render();
+  };
+
+  ThreejsScene.prototype.initCamera = function () {
+    var self = this;
+
+    self.camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000);
+    self.camera.position.x = 0;
+    self.camera.position.y = 0;
+    self.camera.position.z = 35;
+  };
+
+  ThreejsScene.prototype.initLight = function () {
+    var self = this;
+
+    var light = new THREE.AmbientLight(0x606060);
+    self.scene.add(light);
+
+    light = new THREE.PointLight(0xffffff, 1, 700);
+    light.position.set(0, 20, 120);
+    self.scene.add(light);
+  };
+
+  ThreejsScene.prototype.initRenderer = function () {
+    var self = this;
+
+    self.renderer = new THREE.WebGLRenderer();
+    self.renderer.setClearColor(0x000000, 1.0);
+    self.renderer.setPixelRatio(window.devicePixelRatio);
+    self.renderer.setSize(window.innerWidth, window.innerHeight);
+    self.renderer.shadowMap.enabled = true;
+
+    self.addToDOM();
+  };
+
+  ThreejsScene.prototype.addToDOM = function () {
+    var container = document.getElementById('container');
+    var canvas = container.getElementsByTagName('canvas');
+
+    if (canvas.length > 0) {
+      container.removeChild(canvas[0]);
+    }
+    container.appendChild(this.renderer.domElement);
+  };
+
+  ThreejsScene.prototype.initShapes = function () {
+    var self = this;
+
+    var geometry = new THREE.BoxGeometry(self.shapeX, self.shapeY, self.shapeZ);
+    var material = new THREE.MeshBasicMaterial({
+      color: self.shapeColor
+    });
+
+    self.shape = new THREE.Mesh(geometry, material);
+
+    self.scene.add(self.shape);
+
+    self.tl = new TimelineMax({repeat: -1 ,repeatDelay:0.5});
+    self.tl.to(self.shape.rotation, 2.7, {y:-Math.PI, ease: Expo.easeOut},"=-0.7");
+  };
+
+  ThreejsScene.prototype.setEventListeners = function () {
+    var self = this;
+
+    window.addEventListener('resize', self.onWindowResize, false);
+  };
+
+  ThreejsScene.prototype.onWindowResize = function () {
+    var self = this;
+
+    self.camera.aspect = window.innerWidth / window.innerHeight;
+    self.camera.updateProjectionMatrix();
+    self.renderer.setSize(window.innerWidth, window.innerHeight);
+  };
+
+  ThreejsScene.prototype.render = function () {
+    requestAnimationFrame(this.render.bind(this));
+    this.renderer.render(this.scene, this.camera);
+  };
+
+  try {
+    var threejsScene = new ThreejsScene();
+    threejsScene.init();
+  } catch (e) {
+    var errorReport = "Your program encountered an unrecoverable error, can not draw on canvas. Error was:<br/><br/>";
+    var error = document.getElementById('error');
+    error.append(errorReport + e);
+  }
+
+  //
+  //  var renderTime, deltaTime, alpha;
+  //  var globalTime = Date.now() * 0.04;
+  //
+  //  deltaTime = renderTime = alpha = 0;
+  //
+  //  function render() {
+  //    renderTime = Date.now() * 0.04;
+  //    deltaTime = Math.abs(Math.floor(globalTime - renderTime));
+  //
+  //
+  //    renderer.render(scene, camera);
+  //  }
+</script>
+</body>
+</html>
