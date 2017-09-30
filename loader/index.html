@@ -22,9 +22,9 @@
   'use strict';
 
   function ThreejsScene() {
-    this.shapeX = 5;
-    this.shapeY = 5;
-    this.shapeZ = 5;
+    this.shapeX = 20;
+    this.shapeY = 20;
+    this.shapeZ = 20;
     this.shapeColor = 0xF4EBEB;
   }
 
@@ -45,9 +45,9 @@
   ThreejsScene.prototype.initCamera = function () {
     var self = this;
 
-    self.camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 1, 1000);
-    self.camera.position.x = 15;
-    self.camera.position.y = 10;
+    self.camera = new THREE.OrthographicCamera( window.innerWidth / - 10, window.innerWidth / 10, window.innerHeight / 10, window.innerHeight / - 10, -20, 1000 );
+    self.camera.position.x = 20;
+    self.camera.position.y = 20;
     self.camera.position.z = 35;
     self.camera.updateProjectionMatrix();
     self.camera.lookAt(self.scene.position);
@@ -61,11 +61,7 @@
     light = new THREE.DirectionalLight(0xffffff, 1.5);
     light.position.set(30, 50, 20);
     light.castShadow = true;
-//    var light = new THREE.AmbientLight(0x606060);
-//    self.scene.add(light);
 
-//    var light = new THREE.PointLight(0xffffff, 1, 700);
-//    light.position.set(0, 20, 120);
     self.scene.add(light);
   };
 
@@ -108,9 +104,10 @@
 
     self.scene.add(self.shapeOne);
 
+
     self.shapeOne.position.x = 1;
     self.tl = new TimelineMax({repeat: -1, repeatDelay: 1.5});
-    self.tl.to(self.shapeOne.position, 0.7, {x: 18, ease: Expo.easeOut});
+    self.tl.to(self.shapeOne.position, 0.7, {x: 72, ease: Expo.easeOut});
     self.tl.to(self.shapeOne.rotation, 0.7, {y: -Math.PI, ease: Expo.easeOut}, "=-0.6");
     self.tl.to(self.shapeOne.position, 0.7, {x: 1, ease: Expo.easeIn});
 
@@ -126,7 +123,7 @@
     self.shapeTwo.position.x = -1;
     self.scene.add(self.shapeTwo);
     self.tl = new TimelineMax({repeat: -1, repeatDelay: 1.5, delay: 1.5});
-    self.tl.to(self.shapeTwo.position, 0.7, {x: -17, ease: Expo.easeOut});
+    self.tl.to(self.shapeTwo.position, 0.7, {x: -68, ease: Expo.easeOut});
     self.tl.to(self.shapeTwo.rotation, 0.7, {y: Math.PI, ease: Expo.easeOut}, "=-0.6");
     self.tl.to(self.shapeTwo.position, 0.7, {x: -1, ease: Expo.easeIn});
   };
