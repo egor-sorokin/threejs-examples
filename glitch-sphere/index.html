@@ -77,11 +77,12 @@
     var self = this;
 
     self.renderer = new THREE.WebGLRenderer();
-    self.renderer.setClearColor(0xffffff, 1.0);
+//    self.renderer.setClearColor(0x1E1E20, 1.0);
+    self.renderer.setClearColor(0xFFFFFF, 1.0);
     self.renderer.setPixelRatio(window.devicePixelRatio);
     self.renderer.setSize(window.innerWidth, window.innerHeight);
     self.renderer.shadowMap.enabled = true;
-
+//    self.renderer.sortObjects = false;
     self.addToDOM();
   };
 
@@ -119,9 +120,9 @@
 
     geometry = new THREE.SphereGeometry(self.sphereRadius, 32, 32);
     material = new THREE.MeshPhongMaterial({
-      color: self.sphereColor,
+      opacity: 0.7,
+      map: THREE.ImageUtils.loadTexture('../assets/img/triangles.jpg'),
       transparent: true,
-      opacity: 0.5,
       shininess: 30,
       metal: true,
       wrapAround: true,
@@ -137,10 +138,12 @@
     self.sphereGroup.add(self.sphereOuter);
 
 
-    geometry = new THREE.SphereGeometry(self.sphereRadius - 0.1, 32, 32);
-    material = new THREE.MeshLambertMaterial({
-      map: THREE.ImageUtils.loadTexture('../assets/img/triangles.jpg'),
-      opacity: 0.1
+    geometry = new THREE.SphereGeometry(self.sphereRadius - 1, 32, 32);
+    material = new THREE.MeshPhongMaterial({
+      color: 0xff0000,
+//      map: THREE.ImageUtils.loadTexture('../assets/img/triangles.jpg'),
+//      transparent: true,
+//      blending: THREE.AdditiveBlending
     });
     self.sphereInner = new THREE.Mesh(geometry, material);
     self.sphereInner.castShadow = false;
@@ -172,6 +175,50 @@
     self.tl.to(self.sphereGroup.position, 2, {x: 0, y: 1, z: 0, ease: Power1.easeInOut});
     self.tl.to(self.sphereGroup.position, 2, {x: 0, y: -1, z: 0, ease: Power1.easeInOut});
     self.tl.to(self.sphereGroup.position, 2, {x: 0, y: 0, z: 0, ease: Power1.easeInOut});
+
+
+
+
+//    var options = {
+//      size: 90,
+//      height: 90,
+//      weight: 'normal',
+//      font: 'helvetiker',
+//      style: 'normal',
+//      bevelThickness: 2,
+//      bevelSize: 4,
+//      bevelSegments: 3,
+//      bevelEnabled: true,
+//      curveSegments: 12,
+//      steps: 1
+//    };
+// the createMesh is the same function we saw earlier
+//    var text1 = createMesh(new THREE.TextGeometry("Learning", options));
+//    text1.position.z = 0;
+//    text1.position.y = 0;
+//    self.scene.add(text1);
+//    var text2 = createMesh(new THREE.TextGeometry("Three.js", options));
+//    self.scene.add(text2);
+
+
+    function createMesh(geom) {
+
+      // assign two materials
+//            var meshMaterial = new THREE.MeshLambertMaterial({color: 0xff5555});
+//            var meshMaterial = new THREE.MeshNormalMaterial();
+      var meshMaterial = new THREE.MeshPhongMaterial({
+        specular: 0xffffff,
+        color: 0xeeffff,
+        shininess: 100,
+        metal: true
+      });
+//            meshMaterial.side=THREE.DoubleSide;
+      // create a multimaterial
+      var plane = THREE.SceneUtils.createMultiMaterialObject(geom, [meshMaterial]);
+
+      return false;
+    }
+
   };
 
 
@@ -214,4 +261,3 @@
 </script>
 </body>
 </html>
->>>>>>> Stashed changes

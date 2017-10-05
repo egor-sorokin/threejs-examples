@@ -89,7 +89,7 @@ THREE.GlitchPass.prototype = Object.assign( Object.create( THREE.Pass.prototype 
 
   generateTrigger: function() {
 
-    this.randX = THREE.Math.randInt( 20, 240 );
+    this.randX = THREE.Math.randInt( 10, 240 );
 
   },
 
