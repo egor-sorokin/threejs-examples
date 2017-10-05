@@ -8,9 +8,16 @@
     <link rel="stylesheet" href="../assets/css/button.css"/>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/1.16.1/TweenMax.min.js"></script>
+    <script src="../libs/three.js"></script>
+
+    <script src="shaders/DigitalGlitch.js"></script>
+
+    <script src="postprocessing/EffectComposer.js"></script>
+    <script src="postprocessing/RenderPass.js"></script>
+    <script src="postprocessing/ShaderPass.js"></script>
+    <script src="postprocessing/GlitchPass.js"></script>
 </head>
 <body>
-<script src="../libs/three.js"></script>
 <main id="container">
     <canvas id="canvas"></canvas>
     <a href="/" class="button button--rounded">
@@ -23,7 +30,7 @@
 
   function ThreejsScene() {
     this.sphereRadius = 10;
-    this.sphereColor = 0x444444;
+    this.sphereColor = 0x000000;
     this.animationStep = 0.005;
   }
 
@@ -33,6 +40,7 @@
     this.initCamera();
     this.initLight();
     this.initRenderer();
+    this.initGlitch();
     this.setEventListeners();
 
     this.initObjects();
@@ -75,6 +83,19 @@
     self.renderer.shadowMap.enabled = true;
 
     self.addToDOM();
+  };
+
+
+  ThreejsScene.prototype.initGlitch = function () {
+    var self = this;
+
+    self.composer = new THREE.EffectComposer(self.renderer);
+    self.composer.addPass(new THREE.RenderPass(self.scene, self.camera));
+
+    var glitchPass = new THREE.GlitchPass();
+
+    glitchPass.renderToScreen = true;
+    self.composer.addPass(glitchPass);
   };
 
 
@@ -136,13 +157,21 @@
 
     self.tl = new TimelineMax({repeat: 0});
     self.tl.to(self.sphereGroup.scale, 2, {x: 1, y: 1, z: 1, ease: Power1.easeOut});
+//
+//
+//    self.tl = new TimelineMax({repeat: 0, delay:1});
+//    self.tl.to(self.sphereGroup.position, 2, {x: 0, y: 0, z: 0, ease:  SlowMo.ease.config( 0.7, 0.7, false)});
+//    self.tl.to(self.sphereGroup.position, 1, {x: -8, y: -7, z: -1, ease:  SlowMo.ease.config( 0.7, 0.7, false)}, "=-1");
+//    self.tl.to(self.sphereGroup.position, 1, {x: 0, y: 10, z: -10, ease:  SlowMo.ease.config( 0.5, 0.5, false)}, "=-0.2");
+//    self.tl.to(self.sphereGroup.position, 1, {x: 10, y: 0, z: 5, ease:  SlowMo.ease.config( 0.7, 0.7, false)}, "=-0.2");
+//    self.tl.to(self.sphereGroup.position, 1, {x: 0, y: 0, z: 0, ease:  Power1.easeInOut}, "=-0.2");
 
 
     self.tl = new TimelineMax({repeat: -1, repeatDelay: 0.00001, delay: 2, yoyo: true});
-    self.tl.to(self.sphereGroup.position, 1, {x: 0, y: 0, z: 0, ease:  Power1.easeInOut});
-    self.tl.to(self.sphereGroup.position, 2, {x: 0, y: 1, z: 0, ease:  Power1.easeInOut});
-    self.tl.to(self.sphereGroup.position, 2, {x: 0, y: -1, z: 0, ease:  Power1.easeInOut});
-    self.tl.to(self.sphereGroup.position, 2, {x: 0, y: 0, z: 0, ease:  Power1.easeInOut});
+    self.tl.to(self.sphereGroup.position, 1, {x: 0, y: 0, z: 0, ease: Power1.easeInOut});
+    self.tl.to(self.sphereGroup.position, 2, {x: 0, y: 1, z: 0, ease: Power1.easeInOut});
+    self.tl.to(self.sphereGroup.position, 2, {x: 0, y: -1, z: 0, ease: Power1.easeInOut});
+    self.tl.to(self.sphereGroup.position, 2, {x: 0, y: 0, z: 0, ease: Power1.easeInOut});
   };
 
 
@@ -170,7 +199,8 @@
     self.sphereInner.rotation.y = -self.animationStep;
 
     requestAnimationFrame(this.render.bind(this));
-    this.renderer.render(this.scene, this.camera);
+    self.composer.render();
+//    this.renderer.render(this.scene, this.camera);
   };
 
   try {
@@ -184,3 +214,4 @@
 </script>
 </body>
 </html>
+>>>>>>> Stashed changes
