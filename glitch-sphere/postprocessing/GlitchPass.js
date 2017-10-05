@@ -1,39 +1,43 @@
 /**
  * @author alteredq / http://alteredqualia.com/
+ * @modified by Egor Sorokin
  */
 
 THREE.GlitchPass = function ( dt_size ) {
+  var self = this;
 
-  THREE.Pass.call( this );
+  THREE.Pass.call( self );
 
   if ( THREE.DigitalGlitch === undefined ) console.error( "THREE.GlitchPass relies on THREE.DigitalGlitch" );
 
   var shader = THREE.DigitalGlitch;
-  this.uniforms = THREE.UniformsUtils.clone( shader.uniforms );
+  self.uniforms = THREE.UniformsUtils.clone( shader.uniforms );
 
   if ( dt_size == undefined ) dt_size = 64;
 
 
-  this.uniforms[ "tDisp" ].value = this.generateHeightmap( dt_size );
+  self.uniforms[ "tDisp" ].value = self.generateHeightmap( dt_size );
 
 
-  this.material = new THREE.ShaderMaterial( {
-    uniforms: this.uniforms,
+  self.material = new THREE.ShaderMaterial( {
+    uniforms: self.uniforms,
     vertexShader: shader.vertexShader,
     fragmentShader: shader.fragmentShader
   } );
 
-  this.camera = new THREE.OrthographicCamera( - 1, 1, 1, - 1, 0, 1 );
-  this.scene  = new THREE.Scene();
+  self.camera = new THREE.OrthographicCamera( - 1, 1, 1, - 1, 0, 1 );
+  self.scene  = new THREE.Scene();
 
-  this.quad = new THREE.Mesh( new THREE.PlaneBufferGeometry( 2, 2 ), null );
-  this.quad.frustumCulled = false; // Avoid getting clipped
-  this.scene.add( this.quad );
+  self.quad = new THREE.Mesh( new THREE.PlaneBufferGeometry( 2, 2 ), null );
+  self.quad.frustumCulled = false; // Avoid getting clipped
+  self.scene.add( self.quad );
 
-  this.goWild = false;
-  this.curF = 0;
-  this.generateTrigger();
+  self.goWild = false;
+  self.curF = 0;
 
+  setTimeout(function(){
+    self.generateTrigger();
+  }, 700);
 };
 
 THREE.GlitchPass.prototype = Object.assign( Object.create( THREE.Pass.prototype ), {
@@ -89,7 +93,7 @@ THREE.GlitchPass.prototype = Object.assign( Object.create( THREE.Pass.prototype 
 
   generateTrigger: function() {
 
-    this.randX = THREE.Math.randInt( 10, 240 );
+    this.randX = THREE.Math.randInt( 50, 140 );
 
   },
 
