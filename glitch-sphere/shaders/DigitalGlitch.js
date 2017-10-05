@@ -22,9 +22,9 @@ THREE.DigitalGlitch = {
     "seed":			{ value: 0.02 },
     "seed_x":		{ value: 0.02 },//-1,1
     "seed_y":		{ value: 0.02 },//-1,1
-    "distortion_x":	{ value: 0.5 },
-    "distortion_y":	{ value: 0.6 },
-    "col_s":		{ value: 0.003 }
+    "distortion_x":	{ value: 0.1 },
+    "distortion_y":	{ value: 0.1 },
+    "col_s":		{ value: 0.0001 }
   },
 
   vertexShader: [
