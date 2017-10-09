@@ -8,14 +8,20 @@
     <link rel="stylesheet" href="../assets/css/button.css"/>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/1.16.1/TweenMax.min.js"></script>
-    <script src="../libs/three.js"></script>
 
-    <script src="shaders/DigitalGlitch.js"></script>
+    <script type="text/javascript" src="../libs/three.js"></script>
 
-    <script src="postprocessing/EffectComposer.js"></script>
-    <script src="postprocessing/RenderPass.js"></script>
-    <script src="postprocessing/ShaderPass.js"></script>
-    <script src="postprocessing/GlitchPass.js"></script>
+
+    <script type="text/javascript" src="shaders/DigitalGlitch.js"></script>
+
+
+    <script type="text/javascript" src="postprocessing/EffectComposer.js"></script>
+    <script type="text/javascript" src="postprocessing/ShaderPass.js"></script>
+    <script type="text/javascript" src="postprocessing/RenderPass.js"></script>
+    <script type="text/javascript" src="postprocessing/GlitchPass.js"></script>
+    <script type="text/javascript" src="shaders/CopyShader.js"></script>
+
+    <script type="text/javascript" src="shaders/RGBShiftShader.js"></script>
 </head>
 <body>
 <main id="container">
@@ -30,7 +36,7 @@
 
   function ThreejsScene() {
     this.sphereRadius = 10;
-    this.sphereColor = 0x000000;
+    this.sphereColor = 0x1F1F1F;
     this.animationStep = 0.005;
   }
 
@@ -40,10 +46,15 @@
     this.initCamera();
     this.initLight();
     this.initRenderer();
+    this.initEffectComposer();
     this.initGlitch();
+    this.shiftRGB();
+    this.makeEffectCopy();
     this.setEventListeners();
 
     this.initObjects();
+    this.addLogo();
+    this.addSmoke();
 
     this.render();
   };
@@ -53,8 +64,8 @@
     var self = this;
 
     self.camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 1, 1000);
-    self.camera.position.x = 15;
-    self.camera.position.y = 10;
+    self.camera.position.x = 0;
+    self.camera.position.y = 0;
     self.camera.position.z = 35;
     self.camera.updateProjectionMatrix();
     self.camera.lookAt(self.scene.position);
@@ -66,7 +77,7 @@
     var light;
 
     light = new THREE.DirectionalLight(0xFFFFFF, 2);
-    light.position.set(-10, 15, 30);
+    light.position.set(-20, 15, 20);
     light.castShadow = true;
 
     self.scene.add(light);
@@ -76,27 +87,57 @@
   ThreejsScene.prototype.initRenderer = function () {
     var self = this;
 
-    self.renderer = new THREE.WebGLRenderer();
-//    self.renderer.setClearColor(0x1E1E20, 1.0);
-    self.renderer.setClearColor(0xFFFFFF, 1.0);
+    self.renderer = new THREE.WebGLRenderer({ alpha: true });
+    self.renderer.setClearColor(0x1E1E20, 1.0);
     self.renderer.setPixelRatio(window.devicePixelRatio);
     self.renderer.setSize(window.innerWidth, window.innerHeight);
     self.renderer.shadowMap.enabled = true;
-//    self.renderer.sortObjects = false;
+
     self.addToDOM();
   };
 
 
-  ThreejsScene.prototype.initGlitch = function () {
+  ThreejsScene.prototype.initEffectComposer = function () {
     var self = this;
 
     self.composer = new THREE.EffectComposer(self.renderer);
     self.composer.addPass(new THREE.RenderPass(self.scene, self.camera));
+  };
 
+
+  ThreejsScene.prototype.initGlitch = function () {
     var glitchPass = new THREE.GlitchPass();
 
-    glitchPass.renderToScreen = true;
-    self.composer.addPass(glitchPass);
+    this.composer.addPass(glitchPass);
+  };
+
+
+  ThreejsScene.prototype.shiftRGB = function () {
+    var self = this;
+
+    var rgbShift = new THREE.ShaderPass(THREE.RGBShiftShader);
+    var rgbAmount = 0.003;
+    var angle = 3.5;
+
+    rgbShift.uniforms.amount.value = rgbAmount;
+    rgbShift.uniforms.angle.value = angle;
+    rgbShift.enabled = true;
+
+    self.composer.addPass(rgbShift);
+
+
+    self.tl = new TimelineMax({repeat: 0, repeatDelay: 0.00001, delay: 0.5});
+    self.tl.to(rgbShift.uniforms.angle, 2, {value: 0.5, ease: Power1.easeInOut});
+    self.tl.to(rgbShift.uniforms.amount, 2, {value: 0.005, ease: Power1.easeInOut}, "=-2");
+  };
+
+
+  ThreejsScene.prototype.makeEffectCopy = function() {
+    var self = this;
+
+    var effectCopy = new THREE.ShaderPass(THREE.CopyShader);
+    effectCopy.renderToScreen = true;
+    self.composer.addPass(effectCopy);
   };
 
 
@@ -117,108 +158,99 @@
 
     self.sphereGroup = new THREE.Object3D();
 
-
     geometry = new THREE.SphereGeometry(self.sphereRadius, 32, 32);
     material = new THREE.MeshPhongMaterial({
-      opacity: 0.7,
-      map: THREE.ImageUtils.loadTexture('../assets/img/triangles.jpg'),
+      opacity: 0.6,
+      color: self.sphereColor,
       transparent: true,
-      shininess: 30,
-      metal: true,
-      wrapAround: true,
-      wrapRGB: true,
-      emissive: 'hsl(354, 6%, 12%)'
+      shininess: 40
     });
     self.sphereOuter = new THREE.Mesh(geometry, material);
     self.sphereOuter.castShadow = false;
-    self.sphereOuter.position.x = 0;
-    self.sphereOuter.position.y = 0;
-    self.sphereOuter.position.z = 0;
+    self.sphereOuter.renderOrder = 2;
 
     self.sphereGroup.add(self.sphereOuter);
 
 
-    geometry = new THREE.SphereGeometry(self.sphereRadius - 1, 32, 32);
-    material = new THREE.MeshPhongMaterial({
-      color: 0xff0000,
-//      map: THREE.ImageUtils.loadTexture('../assets/img/triangles.jpg'),
-//      transparent: true,
-//      blending: THREE.AdditiveBlending
+    geometry = new THREE.SphereGeometry(self.sphereRadius - 0.1, 32, 32);
+    material = new THREE.MeshLambertMaterial({
+      map: THREE.ImageUtils.loadTexture('../assets/img/triangles.jpg'),
+      transparent: true,
+      opacity: 0.8
     });
     self.sphereInner = new THREE.Mesh(geometry, material);
+
     self.sphereInner.castShadow = false;
-    self.sphereInner.position.x = 0;
-    self.sphereInner.position.y = 0;
-    self.sphereInner.position.z = 0;
-
-    self.sphereGroup.add(self.sphereInner);
-    self.scene.add(self.sphereGroup);
-
     self.sphereGroup.scale.x = 0;
     self.sphereGroup.scale.y = 0;
     self.sphereGroup.scale.z = 0;
+    self.sphereInner.renderOrder = 1;
+
+    self.sphereGroup.add(self.sphereInner);
 
     self.tl = new TimelineMax({repeat: 0});
-    self.tl.to(self.sphereGroup.scale, 2, {x: 1, y: 1, z: 1, ease: Power1.easeOut});
-//
-//
-//    self.tl = new TimelineMax({repeat: 0, delay:1});
-//    self.tl.to(self.sphereGroup.position, 2, {x: 0, y: 0, z: 0, ease:  SlowMo.ease.config( 0.7, 0.7, false)});
-//    self.tl.to(self.sphereGroup.position, 1, {x: -8, y: -7, z: -1, ease:  SlowMo.ease.config( 0.7, 0.7, false)}, "=-1");
-//    self.tl.to(self.sphereGroup.position, 1, {x: 0, y: 10, z: -10, ease:  SlowMo.ease.config( 0.5, 0.5, false)}, "=-0.2");
-//    self.tl.to(self.sphereGroup.position, 1, {x: 10, y: 0, z: 5, ease:  SlowMo.ease.config( 0.7, 0.7, false)}, "=-0.2");
-//    self.tl.to(self.sphereGroup.position, 1, {x: 0, y: 0, z: 0, ease:  Power1.easeInOut}, "=-0.2");
 
+    self.tl.to(self.sphereGroup.scale, 1.5, {x: 1, y: 1, z: 1, ease: Power1.ease});
 
-    self.tl = new TimelineMax({repeat: -1, repeatDelay: 0.00001, delay: 2, yoyo: true});
+    self.tl = new TimelineMax({repeat: -1, repeatDelay: 0.00001, delay: 1, yoyo: true});
     self.tl.to(self.sphereGroup.position, 1, {x: 0, y: 0, z: 0, ease: Power1.easeInOut});
     self.tl.to(self.sphereGroup.position, 2, {x: 0, y: 1, z: 0, ease: Power1.easeInOut});
     self.tl.to(self.sphereGroup.position, 2, {x: 0, y: -1, z: 0, ease: Power1.easeInOut});
     self.tl.to(self.sphereGroup.position, 2, {x: 0, y: 0, z: 0, ease: Power1.easeInOut});
 
+    self.scene.add(self.sphereGroup);
+  };
 
 
+  ThreejsScene.prototype.addLogo = function () {
+    var self = this;
 
-//    var options = {
-//      size: 90,
-//      height: 90,
-//      weight: 'normal',
-//      font: 'helvetiker',
-//      style: 'normal',
-//      bevelThickness: 2,
-//      bevelSize: 4,
-//      bevelSegments: 3,
-//      bevelEnabled: true,
-//      curveSegments: 12,
-//      steps: 1
-//    };
-// the createMesh is the same function we saw earlier
-//    var text1 = createMesh(new THREE.TextGeometry("Learning", options));
-//    text1.position.z = 0;
-//    text1.position.y = 0;
-//    self.scene.add(text1);
-//    var text2 = createMesh(new THREE.TextGeometry("Three.js", options));
-//    self.scene.add(text2);
+    var geometry = new THREE.PlaneGeometry( 10, 10);
+    var material = new THREE.MeshBasicMaterial({
+      map: THREE.ImageUtils.loadTexture('../assets/img/E.png'), transparent: true, opacity: 0.9
+    });
+
+    var plane = new THREE.Mesh( geometry, material );
+    plane.position.x = 0;
+    plane.position.y = 0;
+    plane.position.z = 0;
+    plane.renderOrder = 0;
+
+    self.sphereGroup.add(plane);
+  };
 
 
-    function createMesh(geom) {
+  ThreejsScene.prototype.addSmoke = function () {
+    var self = this;
 
-      // assign two materials
-//            var meshMaterial = new THREE.MeshLambertMaterial({color: 0xff5555});
-//            var meshMaterial = new THREE.MeshNormalMaterial();
-      var meshMaterial = new THREE.MeshPhongMaterial({
-        specular: 0xffffff,
-        color: 0xeeffff,
-        shininess: 100,
-        metal: true
-      });
-//            meshMaterial.side=THREE.DoubleSide;
-      // create a multimaterial
-      var plane = THREE.SceneUtils.createMultiMaterialObject(geom, [meshMaterial]);
+    var geometry = new THREE.PlaneGeometry(50, 50);
+    var material = new THREE.MeshBasicMaterial({
+      map: THREE.ImageUtils.loadTexture('../assets/img/smoke.png'),
+      transparent: true,
+      opacity: 0.9
+    });
 
-      return false;
-    }
 
+    self.smokeGroup = new THREE.Object3D();
+
+    var plane = new THREE.Mesh( geometry, material );
+    self.smokeGroup.add(plane);
+
+    plane = new THREE.Mesh( geometry, material );
+    plane.rotation.z = 90;
+
+    self.smokeGroup.add(plane);
+
+    self.smokeGroup.scale.x = 0;
+    self.smokeGroup.scale.y = 0;
+    self.smokeGroup.scale.z = 0;
+
+    self.tl = new TimelineMax({repeat: 0});
+    self.tl.to(self.smokeGroup.scale, 2, {x: 1, y: 1, z: 1, ease: Power1.easeOut});
+    self.tl.to(plane.material, 1.2, {opacity: 1, ease: Power1.easeOut}, "=-1");
+
+
+    self.scene.add(self.smokeGroup);
   };
 
 
