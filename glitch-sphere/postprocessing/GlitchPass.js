@@ -35,6 +35,7 @@ THREE.GlitchPass = function ( dt_size ) {
   self.goWild = false;
   self.curF = 0;
 
+
   setTimeout(function(){
     self.generateTrigger();
   }, 700);
@@ -80,13 +81,9 @@ THREE.GlitchPass.prototype = Object.assign( Object.create( THREE.Pass.prototype 
     this.quad.material = this.material;
 
     if ( this.renderToScreen ) {
-
       renderer.render( this.scene, this.camera );
-
     } else {
-
       renderer.render( this.scene, this.camera, writeBuffer, this.clear );
-
     }
 
   },
