@@ -11,16 +11,12 @@
 
     <script type="text/javascript" src="../libs/three.js"></script>
 
-
-    <script type="text/javascript" src="shaders/DigitalGlitch.js"></script>
-
-
     <script type="text/javascript" src="postprocessing/EffectComposer.js"></script>
     <script type="text/javascript" src="postprocessing/ShaderPass.js"></script>
     <script type="text/javascript" src="postprocessing/RenderPass.js"></script>
     <script type="text/javascript" src="postprocessing/GlitchPass.js"></script>
+    <script type="text/javascript" src="shaders/DigitalGlitch.js"></script>
     <script type="text/javascript" src="shaders/CopyShader.js"></script>
-
     <script type="text/javascript" src="shaders/RGBShiftShader.js"></script>
 </head>
 <body>
@@ -161,7 +157,7 @@
 
     geometry = new THREE.SphereGeometry(self.sphereRadius, 32, 32);
     material = new THREE.MeshPhongMaterial({
-      opacity: 0.6,
+      opacity: 0.5,
       color: self.sphereColor,
       transparent: true,
       shininess: 40
@@ -177,7 +173,7 @@
     material = new THREE.MeshLambertMaterial({
       map: THREE.ImageUtils.loadTexture('../assets/img/triangles.jpg'),
       transparent: true,
-      opacity: 0.8
+      opacity: 0.7
     });
     self.sphereInner = new THREE.Mesh(geometry, material);
 
@@ -224,11 +220,11 @@
   ThreejsScene.prototype.addSmoke = function () {
     var self = this;
 
-    var geometry = new THREE.PlaneGeometry(35, 35);
+    var geometry = new THREE.PlaneGeometry(30, 30);
     var material = new THREE.MeshBasicMaterial({
       map: THREE.ImageUtils.loadTexture('../assets/img/smoke_white.png'),
       transparent: true,
-      opacity: 0.9
+      opacity: 0.6
     });
 
 
@@ -247,8 +243,9 @@
     self.smokeGroup.scale.z = 0;
 
     self.tl = new TimelineMax({repeat: 0});
-    self.tl.to(self.smokeGroup.scale, 2, {x: 1, y: 1, z: 1, ease: Power1.easeOut});
-    self.tl.to(plane.material, 1.2, {opacity: 1, ease: Power1.easeOut}, "=-1");
+    self.tl.to(self.smokeGroup.scale, 1.5, {x: 1, y: 1, z: 1, ease: Power1.easeOut});
+    self.tl.to(plane.material, 1.2, {opacity: 0, ease: Power1.easeOut}, "=-1");
+
 
     self.scene.add(self.smokeGroup);
   };
